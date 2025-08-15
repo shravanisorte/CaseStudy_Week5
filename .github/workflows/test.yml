@@ -19,7 +19,6 @@ jobs:
           databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
           workspace-notebook-path: /Workspace/Users/traininguser5@sudosu.ai/CaseStudy5
           existing-cluster-id: ${{ secrets.DATABRICKS_CLUSTER_ID }}
-
       - name: Download and Print Deequ Report
         if: always()
         run: |
