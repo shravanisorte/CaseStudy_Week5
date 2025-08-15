@@ -19,27 +19,29 @@ jobs:
           databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
           workspace-notebook-path: /Workspace/Users/traininguser5@sudosu.ai/CaseStudy5
           existing-cluster-id: ${{ secrets.DATABRICKS_CLUSTER_ID }}
+
       - name: Download and Print Deequ Report
         if: always()
         run: |
           pip install databricks-cli jq
-          databricks configure --host ${{ secrets.DATABRICKS_HOST }} --token ${{ secrets.DATABRICKS_TOKEN }}
-          
-          # Copy the JSON report from DBFS to the GitHub runner
-          databricks fs cp "dbfs:/FileStore/shared_uploads/traininguser5@sudosu.ai/deequ_result.json" ./deequ_result.json
+          databricks fs cp \
+            --host "${{ secrets.DATABRICKS_HOST }}" \
+            --token "${{ secrets.DATABRICKS_TOKEN }}" \
+            dbfs:/FileStore/shared_uploads/traininguser5@sudosu.ai/deequ_result.json \
+            ./deequ_result.json
           
           echo "------ Deequ Output from Databricks ------"
           cat deequ_result.json
           echo "-------------------------------------------"
-          
-          STATUS=$(jq -r '.result[0].check_status' deequ_result.json)
+
+          STATUS=$(jq -r '.result.check_status' deequ_result.json)
           if [ "$STATUS" != "Success" ]; then
-            echo " Deequ checks failed"
+            echo "Deequ checks failed"
             exit 1
           fi
-          echo " Deequ checks passed"
+          echo "Deequ checks passed"
 
       - name: Deequ Failure Message
         if: failure()
         run: |
-          echo " Deequ failed — see DBFS report in Databricks"
+          echo "Deequ failed — see DBFS report in Databricks"
